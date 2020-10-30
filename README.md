@@ -1,2 +1,2 @@
-# CppUtils
-MyCppUtils
+# LanUtils
+My Language Utils
