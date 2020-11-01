@@ -33,7 +33,7 @@ class TaskExecutor {
   TaskExecutor(int thread_num = std::thread::hardware_concurrency()) {
     thread_num_ = (thread_num >= 4 ? thread_num : 4);
     stop_ = false;
-    for (int i = 0; i < thread_num; ++i) {
+    for (int i = 0; i < thread_num_; ++i) {
       threads_.emplace_back([this] {
         while (not stop_.load()) {
           Task task;
