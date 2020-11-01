@@ -1,6 +1,7 @@
 #ifndef STRINGUTILS_H
 #define STRINGUTILS_H
 
+#include "prelude.h"
 #include <string_view>
 #include <algorithm>
 #include <iostream>
@@ -9,17 +10,16 @@
 #include <vector>
 #include <string>
 
-namespace sauron::utils {
 
 namespace {
 
 template<typename T>
-inline void __CatString(std::ostringstream& oss, T&& v) {
+inline fn __CatString(std::ostringstream& oss, T&& v) -> void {
     oss << std::forward<T>(v);
 }
 
 template<typename T, typename... Args>
-inline void __CatString(std::ostringstream& oss, T&& v, Args&&... args) {
+inline fn __CatString(std::ostringstream& oss, T&& v, Args&&... args) -> void {
     oss << std::forward<T>(v);
     __CatString(oss, std::forward<Args>(args)...);
 }
@@ -27,7 +27,7 @@ inline void __CatString(std::ostringstream& oss, T&& v, Args&&... args) {
 }
 
 template <typename... Args>
-std::string FormatString(const char* fmt, Args... args) {
+fn FormatString(const char* fmt, Args... args) -> string {
     static thread_local char buffer[2048] = {0};
     ::memset(buffer, 0, sizeof(buffer));
     snprintf(buffer, sizeof(buffer), fmt, args...);
@@ -35,45 +35,39 @@ std::string FormatString(const char* fmt, Args... args) {
 }
 
 template <size_t bufferSize, typename... Args>
-std::string FormatString(const char* fmt, Args... args) {
+fn FormatString(const char* fmt, Args... args) -> string {
     char buffer[bufferSize] = {0};
     snprintf(buffer, sizeof(buffer), fmt, args...);
     return buffer;
 }
 
-std::ostream& println();
+inline fn println() -> std::ostream& {
+    std::cout << std::endl;;
+    return std::cout;
+}
 
 template <typename T>
-std::ostream& println(const T& val) {
-    std::cout << val << std::endl;;
+inline fn println(const T& val) -> std::ostream&  {
+    std::cout << val << std::endl;
     return std::cout;
 }
 
 template <typename T, typename... Args>
-std::ostream& println(const T& val, const Args&... args) {
+fn println(const T& val, const Args&... args) -> std::ostream& {
     std::cout << val;
     return println(args...);
 }
 
 
-std::vector<std::string> SplitString(const std::string& content, char sep);
-
-std::string JoinString(const std::vector<std::string>& strings, const std::string& sep);
-
-std::string CatString(const std::initializer_list<std::string>& strs);
-
 template<typename... Args>
-std::string CatString(Args&&... args) {
+fn CatString(Args&&... args) -> string {
     std::ostringstream oss;
     __CatString(oss, std::forward<Args>(args)...);
     return oss.str();
 }
 
-#include "utils/stringutils.h"
-
-namespace sauron::utils {
-
-std::vector<std::string> SplitString(const std::string& content, char sep) {
+template <typename T=int>
+fn SplitString(const string& content, char sep) -> vector<string> {
     // return: start_pos, finish_pos
     static auto strip = [](const char* str, size_t len) -> std::pair<const char*, const char*> {
         if (len <= 0) return {str, str};
@@ -89,7 +83,7 @@ std::vector<std::string> SplitString(const std::string& content, char sep) {
         return {str + start, str + end + 1};
     };
 
-    std::vector<std::string> results;
+    vector<string> results;
     const char* cstr = content.c_str();
     size_t start = 0, finish = 0;
     for (size_t i = 0; i < content.size(); ++i) {
@@ -98,7 +92,7 @@ std::vector<std::string> SplitString(const std::string& content, char sep) {
             if (start < finish) {
                 auto [start_pos, finish_pos] = strip(cstr + start, finish - start);
                 if (start_pos and finish_pos and start_pos < finish_pos) {
-                    results.push_back(std::string(start_pos, finish_pos));
+                    results.push_back(string(start_pos, finish_pos));
                 }
             }
             start = i + 1;
@@ -107,9 +101,10 @@ std::vector<std::string> SplitString(const std::string& content, char sep) {
     return results;
 }
 
-std::string JoinString(const std::vector<std::string>& strings, const std::string& sep) {
+template <typename T=int>
+fn JoinString(const vector<string>& strings, const string& sep) -> string {
     if (strings.empty()) return "";
-    std::string builder;
+    string builder;
     for (size_t i = 0; i < strings.size(); ++i) {
         builder.append(strings[i]);
         if (not(i == strings.size() - 1)) {
@@ -119,10 +114,11 @@ std::string JoinString(const std::vector<std::string>& strings, const std::strin
     return builder;
 }
 
-std::string CatString(const std::initializer_list<std::string>& strs) {
+template <typename T=int>
+fn CatString(const std::initializer_list<string>& strs) -> string {
     size_t totalSize = 0;
-    std::for_each(strs.begin(), strs.end(), [&](const std::string& str){ totalSize += str.size(); });
-    std::string builder;
+    std::for_each(strs.begin(), strs.end(), [&](const string& str){ totalSize += str.size(); });
+    string builder;
     builder.reserve(totalSize + 1);
     for (auto& str: strs) {
         builder.append(str);
@@ -130,14 +126,5 @@ std::string CatString(const std::initializer_list<std::string>& strs) {
     return builder;
 }
 
-std::ostream &println()
-{
-    std::cout << std::endl;;
-    return std::cout;
-}
-
-}
-
-}
 
 #endif // STRINGUTILS_H
