@@ -1,6 +1,7 @@
 #ifndef PRELUD_H
 #define PRELUD_H
 
+#include <unordered_map>
 #include <functional>
 #include <memory>
 #include <string>
@@ -27,9 +28,13 @@ template <typename T>
 using Rc = std::shared_ptr<T>;
 
 
+template <typename K, typename V, typename... Args>
+using HashMap = std::unordered_map<K, V, Args...>;
+
 using std::string;
-using std::tuple;
 using std::vector;
+using std::tuple;
+using std::pair;
 
 using std::make_unique;
 using std::make_shared;
