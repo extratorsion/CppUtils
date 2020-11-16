@@ -8,6 +8,7 @@ struct SS {
   using SlotSet = HashMap<void*, std::list<pair<void*, Fn<void*()>>>>;
   static SlotSet slots_;
 
+protected:
   template <typename Class, typename T, typename... Args>
   fn connect(Class* obj, void (Class::*p)(Args...), T&& val)->void {
     Fn<void(Args...)> raw_fun = std::move(val);
